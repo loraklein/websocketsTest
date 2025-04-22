@@ -31,24 +31,26 @@
         <div v-if="showCountdown" id="countdown">{{ countdown }}</div>
       </div>
       <div
-        v-else-if="gameBoard == 'typing'"
-        @click="refocus"
-        id="typingWrapper"
-      >
-        <input
-          v-if="gameBoard === 'typing'"
-          ref="hiddenInput"
-          v-model="whatYouAreTyping"
-          @blur="refocus"
-          @keydown.tab.prevent
-          spellcheck="false"
-          autocomplete="off"
-          @input="handleInput"
-          style="opacity: 0.01; position: absolute; top: 50%; width: 80%; height: 40px;"
-        />
-        <h1 v-html="typingPrompt"></h1>
-        <p class="tap-instruction">Tap anywhere to type</p>
-      </div>
+   v-else-if="gameBoard == 'typing'"
+   @click="refocus"
+   id="typingWrapper"
+ >
+   <input
+     v-if="gameBoard === 'typing'"
+     ref="hiddenInput"
+     v-model="whatYouAreTyping"
+     @blur="refocus"
+     @keydown.tab.prevent
+     spellcheck="false"
+     autocomplete="off"
+     @input="handleInput"
+     style="opacity: 0.01; position: absolute; top: 40%; left: 10%; width: 80%; height: 40px; z-index: 9999;"
+   />
+   <h1 v-html="typingPrompt"></h1>
+   <p style="color: rgba(255,255,255,0.7); font-size: 16px; animation: pulse 2s infinite;">
+     Tap the screen to activate keyboard
+   </p>
+ </div>
       <div v-else-if="gameBoard == 'youPlaced'" class="youPlacedWrapper">
         <h1>{{youPlaced.name}}</h1>
         <h1 id="nun" :style="{textAlign: 'center'}">
@@ -369,4 +371,5 @@
   0%, 100% { opacity: 0.7; }
   50% { opacity: 0.3; }
 }
+
 </style>
