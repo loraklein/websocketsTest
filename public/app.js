@@ -191,12 +191,6 @@ const app = Vue.createApp({
             }
             this.sendToSocket(toSend);
         },
-        // startGame: function () {
-        //     let toSend = {
-        //         action: 'startGame',
-        //     }
-        //     this.sendToSocket(toSend);
-        // }
         startGame: function () {
             let toSend = {
                 action: 'startGame',
@@ -273,7 +267,7 @@ const app = Vue.createApp({
               }
             }, 1000);
         },
-        tartTimer: function () {
+        startTimer: function () {
             console.log("Start Timer")
             this.typeSound.play();
             
@@ -293,7 +287,7 @@ const app = Vue.createApp({
             
         },
         
-        handleInput(event) {
+        handleInput: function(event) {
             console.log('Input event:', event.target.value);
             
             // Special processing for iOS devices
@@ -313,144 +307,130 @@ const app = Vue.createApp({
                 }
                 for (let i = 0; i < length; i++) {
                     if (this.whatYouAreTyping[i] != this.typingPromptText[i]) {
-                        this.stop = this.whatYouAreTyping.length
-                        this.stopText = this.whatYouAreTyping
+                        this.stop = this.whatYouAreTyping.length;
+                        this.stopText = this.whatYouAreTyping;
                         console.log("False: ", this.whatYouAreTyping[i], " != ", this.typingPromptText[i]);
-                        // this.typingPrompt = this.typingPrompt.substring(0, i) + "<span style='color: red'>" + this.typingPrompt[i] + "</span>" + this.typingPrompt.substring(i + 1);
                         console.log("Typing Prompt: ", this.typingPrompt);
                         console.log("This.typingprompt.supstring: ", this.typingPrompt.substring(i + 1));
                         this.numOfFalse += 1;
                         correct = false;
                     } 
                     if (this.whatYouAreTyping.length == this.typingPromptText.length) {
-                        console.log("You Finished")
+                        console.log("You Finished");
                         isFinished = true;
-                    } if ( this.whatYouAreTyping.length > this.typingPromptText.length ) {
+                    } if (this.whatYouAreTyping.length > this.typingPromptText.length) {
                         this.whatYouAreTyping = this.typingPromptText;
                         console.log("You Typed Too Much");
                     }
                 }
                 let html = '';
-        for (let i = 0; i < this.typingPromptText.length; i++) {
-            const correctChar = this.typingPromptText[i];
-            const typedChar = this.whatYouAreTyping[i];
+                for (let i = 0; i < this.typingPromptText.length; i++) {
+                    const correctChar = this.typingPromptText[i];
+                    const typedChar = this.whatYouAreTyping[i];
 
-            if (typedChar == null) {
-                // Not yet typed
-                html += `<span>${correctChar}</span>`;
-            } else if (typedChar === correctChar) {
-                html += `<span style="color: white">${correctChar}</span>`;
-            } else {
-                html += `<span style="color: #c81515;">${correctChar}</span>`;
-            }
-        }
-
-        this.typingPrompt = html;
-        
-        // Calculate percentage and send it - modified for iOS
-        const percentage = Math.ceil((this.whatYouAreTyping.length / this.typingPromptText.length) * 100);
-        this.sendPercentage(percentage);
-    } else {
-        this.whatYouAreTyping = this.stopText;
-        console.log(this.whatYouAreTyping);
-        console.log(this.stopText.slice(0, -1));
-    }
-},
-refocus() {
-    // Detect iOS
-    const isIOS = /iPad|iPhone|iPod/.test(navigator.userAgent);
-    
-    if (isIOS) {
-        // Special handling for iOS with delay
-        setTimeout(() => {
-            const input = this.$refs.hiddenInput;
-            if (input) {
-                // First, try to make input more visible to iOS
-                const originalOpacity = input.style.opacity;
-                const originalPosition = input.style.position;
-                
-                // Temporarily make input more "real" to iOS
-                input.style.opacity = "0.3";
-                input.style.position = "relative";
-                
-                // Focus with user-initiated event simulation
-                input.focus();
-                input.click();
-                
-                // Reset after a short delay
-                setTimeout(() => {
-                    input.style.opacity = originalOpacity;
-                    input.style.position = originalPosition;
-                }, 100);
-            }
-        }, 300);
-    } else {
-        // Original behavior for non-iOS
-        this.$nextTick(() => {
-            const input = this.$refs.hiddenInput;
-            if (input) {
-                input.focus();
-            } else {
-                console.warn("hiddenInput ref not available yet.");
-            }
-        });
-    }
-},
-initIOSKeyboard() {
-    // This will be called when typing stage begins
-    const isIOS = /iPad|iPhone|iPod/.test(navigator.userAgent);
-    
-    if (isIOS) {
-        // For iOS we need a direct user interaction to trigger keyboard
-        document.addEventListener('touchend', (e) => {
-            if (this.gameBoard === 'typing') {
-                const input = this.$refs.hiddenInput;
-                if (input) {
-                    // Make input temporarily more visible
-                    input.style.opacity = "0.3";
-                    setTimeout(() => {
-                        input.click();
-                        input.focus();
-                        
-                        // Reset opacity after a moment
-                        setTimeout(() => {
-                            input.style.opacity = "0.01";
-                        }, 100);
-                    }, 50);
+                    if (typedChar == null) {
+                        // Not yet typed
+                        html += `<span>${correctChar}</span>`;
+                    } else if (typedChar === correctChar) {
+                        html += `<span style="color: white">${correctChar}</span>`;
+                    } else {
+                        html += `<span style="color: #c81515;">${correctChar}</span>`;
+                    }
                 }
+
+                this.typingPrompt = html;
+                
+                // Calculate percentage and send it
+                const percentage = Math.ceil((this.whatYouAreTyping.length / this.typingPromptText.length) * 100);
+                this.sendPercentage(percentage);
+            } else {
+                this.whatYouAreTyping = this.stopText;
+                console.log(this.whatYouAreTyping);
+                console.log(this.stopText.slice(0, -1));
             }
-        }, { once: true }); // Only do this once
-    }
-},
-          initMobileKeyboard() {
-            // Detect iOS devices
+        },
+        
+        refocus: function() {
+            // Detect iOS
             const isIOS = /iPad|iPhone|iPod/.test(navigator.userAgent);
             
             if (isIOS) {
-              // For iOS devices, we need special handling
-              document.addEventListener('touchend', (e) => {
-                if (this.gameBoard === 'typing') {
-                  // Stop the normal processing of the touch event
-                  e.preventDefault();
-                  
-                  // Focus the input after a slight delay
-                  setTimeout(() => {
+                // Special handling for iOS with delay
+                setTimeout(() => {
                     const input = this.$refs.hiddenInput;
                     if (input) {
-                      input.focus();
+                        // First, try to make input more visible to iOS
+                        const originalOpacity = input.style.opacity;
+                        const originalPosition = input.style.position;
+                        
+                        // Temporarily make input more "real" to iOS
+                        input.style.opacity = "0.3";
+                        input.style.position = "relative";
+                        
+                        // Focus with user-initiated event simulation
+                        input.focus();
+                        input.click();
+                        
+                        // Reset after a short delay
+                        setTimeout(() => {
+                            input.style.opacity = originalOpacity;
+                            input.style.position = originalPosition;
+                        }, 100);
                     }
-                  }, 50);
-                }
-              });
+                }, 300);
+            } else {
+                // Original behavior for non-iOS
+                this.$nextTick(() => {
+                    const input = this.$refs.hiddenInput;
+                    if (input) {
+                        input.focus();
+                    } else {
+                        console.warn("hiddenInput ref not available yet.");
+                    }
+                });
             }
-          },
-        calculateWordsPerMinute() {
+        },
+        
+        initIOSKeyboard: function() {
+            // This will be called when typing stage begins
+            const isIOS = /iPad|iPhone|iPod/.test(navigator.userAgent);
+            
+            if (isIOS) {
+                // For iOS we need a direct user interaction to trigger keyboard
+                document.addEventListener('touchend', (e) => {
+                    if (this.gameBoard === 'typing') {
+                        // Only prevent default if needed
+                        if (e.target.tagName !== 'INPUT') {
+                            e.preventDefault();
+                        }
+                        
+                        const input = this.$refs.hiddenInput;
+                        if (input) {
+                            // Make input temporarily more visible
+                            input.style.opacity = "0.3";
+                            setTimeout(() => {
+                                input.click();
+                                input.focus();
+                                
+                                // Reset opacity after a moment
+                                setTimeout(() => {
+                                    input.style.opacity = "0.01";
+                                }, 100);
+                            }, 50);
+                        }
+                    }
+                }, { once: true }); // Only do this once
+            }
+        },
+        
+        calculateWordsPerMinute: function() {
             const totalTimeInMinutes = this.time / 60;
             const totalWordsTyped = this.whatYouAreTyping.split(' ').length;
             const wpm = totalWordsTyped / totalTimeInMinutes;
             return Math.round(wpm);
         },
-        presentWinners() {
+        
+        presentWinners: function() {
             let place = 0;
             console.log("WINNERS.LENGTH: ", this.winners.length)
             console.log("PRESENTING WINNNNNNNERSSSSS Winners");
@@ -517,6 +497,7 @@ initIOSKeyboard() {
             
             console.log("Winners: ", this.winners);
         },
+        
         playAgain: function () {
             let toSend = {
                 action: 'playAgain',
@@ -537,18 +518,11 @@ initIOSKeyboard() {
         }
     },
     created: function () {
-        
         this.connectSocket();
     },
     mounted: function () {
         //setViewportHeight();
         //window.addEventListener('resize', setViewportHeight);
         // window.addEventListener('onkeydown', this.handleInput);
-        this.initMobileKeyboard();
     },
-   
-    
-
 }).mount('#app');
-
-
